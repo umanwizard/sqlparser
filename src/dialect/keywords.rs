@@ -300,6 +300,7 @@ define_keywords!(
     PREPARE,
     PRIMARY,
     PROCEDURE,
+    PROFILE,
     RANGE,
     RANK,
     READ,

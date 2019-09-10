@@ -403,6 +403,22 @@ impl fmt::Display for Stage {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum ProfileTarget {
+    One(String),
+    All,
+}
+
+impl fmt::Display for ProfileTarget {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s = match self {
+            ProfileTarget::One(s) => s,
+            ProfileTarget::All => "ALL",
+        };
+        f.write_str(s)
+    }
+}
+
 /// A top-level statement (SELECT, INSERT, CREATE, etc.)
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -502,6 +518,7 @@ pub enum Statement {
         /// `RESTRICT` or no drop behavior at all was specified.
         cascade: bool,
     },
+    Profile(ProfileTarget),
     /// `SET <variable>`
     ///
     /// Note: this is not a standard SQL statement, but it is supported by at
@@ -756,6 +773,9 @@ impl fmt::Display for Statement {
                 display_comma_separated(names),
                 if *cascade { " CASCADE" } else { "" },
             ),
+            Statement::Profile(target) => {
+                write!(f, "PROFILE {}", target)
+            }
             Statement::SetVariable {
                 local,
                 variable,

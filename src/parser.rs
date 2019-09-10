@@ -150,6 +150,7 @@ impl Parser {
                         name: self.parse_object_name()?,
                     }),
                     "EXPLAIN" => Ok(self.parse_explain()?),
+                    "PROFILE" => Ok(self.parse_profile()?),
                     _ => parser_err!(format!(
                         "Unexpected keyword {:?} at the beginning of a statement",
                         w.to_string()
@@ -2325,6 +2326,16 @@ impl Parser {
             stage,
             query: Box::new(self.parse_query()?),
         })
+    }
+
+    pub fn parse_profile(&mut self) -> Result<Statement, ParserError> {
+        let target = if self.parse_keyword("ALL") {
+            ProfileTarget::All
+        } else {
+            let id = self.parse_identifier()?;
+            ProfileTarget::One(id)
+        };
+        Ok(Statement::Profile(target))
     }
 }
 

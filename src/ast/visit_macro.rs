@@ -535,6 +535,10 @@ macro_rules! make_visitor {
                 visit_tail(self, name)
             }
 
+            fn visit_profile(&mut self, target: &'ast $($mut)* ProfileTarget) {
+                visit_profile(self, target)
+            }
+
             fn visit_explain(&mut self, stage: &'ast $($mut)* Stage, query: &'ast $($mut)* Query) {
                 visit_explain(self, stage, query)
             }
@@ -611,6 +615,7 @@ macro_rules! make_visitor {
                     location,
                 ),
                 Statement::AlterTable { name, operation } => visitor.visit_alter_table(name, operation),
+                Statement::Profile(target) => visitor.visit_profile(target),
                 Statement::SetVariable {
                     local,
                     variable,
@@ -1428,6 +1433,16 @@ macro_rules! make_visitor {
                 visitor.visit_ident(name);
             }
             visitor.visit_expr(expr);
+        }
+
+        pub fn visit_profile<'ast, V: $name<'ast> + ?Sized>(
+            visitor: &mut V,
+            target: &'ast $($mut)* ProfileTarget,
+        ) {
+            match target {
+                ProfileTarget::All => {},
+                ProfileTarget::One(ident) => visitor.visit_ident(ident),
+            }
         }
 
         pub fn visit_alter_drop_constraint<'ast, V: $name<'ast> + ?Sized>(
